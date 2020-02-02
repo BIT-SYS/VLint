@@ -9,14 +9,13 @@ xxxx, version 0.1 open sourced.
 Based on open source project xxxx.
 ## Verilog data flow analysis
 Based on open source project xxxx.
-
 ## Verilog Source code defect detection
-Supported features:
+Supported defects:
 
 # Build and Install
 
 
 # Team members
-Weixing Ji
-Dejiang Jing
-Zhi Zhou
+Weixing Ji  
+Dejiang Jing  
+Zhi Zhou  
