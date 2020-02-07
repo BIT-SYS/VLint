@@ -8,8 +8,8 @@ import java.util.Collections;
 public class parse {
 
     /*******************************************************************************************************************
-     * ①if-else或case中各分支语句的赋值对象不一致
-     * ④语句不完整,if缺少else,case缺少default
+     * ①if-else or case branch statements are inconsistent
+     * ④Incomplete statement, if missing else, case missing default
      * @param resultList
      */
     private static int i1;
@@ -70,14 +70,13 @@ public class parse {
 
 
     /**
-     * 处理if结构
+     * Handle if structure
      *
      * @param resultList
      * @return
      * @throws IOException
      */
     private static ArrayList<String> if_structure(ArrayList<String> resultList) throws IOException {
-        //此时line指向IFStatement
         ArrayList<String> Lvalue_if = new ArrayList<String>() ;
         ArrayList<String> Lvalue_else = new ArrayList<String>() ;
         String line = resultList.get(i1);
@@ -96,7 +95,6 @@ public class parse {
             Lvalue_if = IForELSE_process(resultList, "if");
             System.out.print("Lvalue if :  ");
             utils.print_array(Lvalue_if);
-            //已经到了最后一行 , 或者直接跳出了if structure ,才跳出if的
             if (i1 == resultList.size() - 1 || utils.count_space(resultList.get(i1)) < num_space + 2) {
                 System.out.println("---------------------------------------------------------------out if structure suddenly : " + resultList.get(i1) + "\n\n");
                 System.err.println("Error [without else in a if structure] at line " + if_structure_line);
@@ -119,7 +117,7 @@ public class parse {
 
 
     /*******************************************************************************************************************
-     * ④检测case块是否不完整,没有default
+     * ④Check if the case block is incomplete without default
      * @param resultList
      */
     public static void Incomplete_Case( ArrayList<String> resultList )
@@ -132,9 +130,9 @@ public class parse {
         for( int i=0 ; i<length ; i++ )
         {
             String line = resultList.get(i) ;
-            if( !inCase )       //不在case块中
+            if( !inCase )
             {
-                if( line.contains("CaseStatement:  "))      //进入case语句块
+                if( line.contains("CaseStatement:  "))
                 {
                     case_line = utils.record_line(line) ;
                     case_space = utils.count_space(line) ;
@@ -143,9 +141,9 @@ public class parse {
                     System.out.println("--------------------------------------------into case structure at : " + line );
                 }
             }
-            else                //已经在case块中
+            else
             {
-                if( i==length-1 || utils.count_space(resultList.get(i+1)) <= case_space )       //最后一行
+                if( i==length-1 || utils.count_space(resultList.get(i+1)) <= case_space )
                 {
                     System.out.println("---------------------------------------------last line of case : " + line + "\n\n");
                     if( !hasDefault )
@@ -172,7 +170,7 @@ public class parse {
 
 
     /*******************************************************************************************************************
-     * ②always敏感列表中变量数量不全的问题
+     * ②incomplete variables in always sensitive list
      * @param resultList
      */
     public static void SensitiveList(ArrayList<String> resultList)
@@ -239,7 +237,6 @@ public class parse {
                     sensitiveList = new ArrayList<String>() ;
                     sensitive_list_line = utils.record_line(line) ;
 
-                    //计数敏感列表
                     i = i + 2 ;
                     line = resultList.get(i) ;
                     while(true)
@@ -271,9 +268,8 @@ public class parse {
         }
     }
 
-
     /*******************************************************************************************************************
-     * ④统一always模块既使用某一信号的上升沿又使用其下降沿
+     * ④The unified always module uses both the posedge and the negedge of a signal
      * @param resultList
      */
     public static void SingalState (ArrayList<String> resultList)
@@ -347,4 +343,109 @@ public class parse {
         }
     }
 
+
+    /*******************************************************************************************************************
+     * ⑦Abusing blocking assignment and nonblocking assignment
+     * @param resultList
+     */
+    public static void BlockorNonblockAssign (ArrayList<String> resultList)
+    {
+        boolean inAlways = false;
+        boolean ifSequence = false;
+        int always_space = 0;
+        int length = resultList.size();
+        int sensitive_list_line = 0;
+
+        for (int i = 0; i < length; i++)
+        {
+            String line = resultList.get(i);
+            if (inAlways)
+            {
+                if( utils.count_space(line)==always_space || i==length-1 ) //出always
+                {
+                    System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
+                    inAlways = false ;
+                    i--;
+                }
+            }
+            else
+            {
+                if (line.contains("Always:") && resultList.get(i + 2).contains("Sens: all"))
+                {
+                    System.out.println("-----------------------------------------------into the combination always : " + line);
+                    inAlways = true ;
+                    ifSequence = false ;
+                    always_space = utils.count_space(line) ;
+                    sensitive_list_line = utils.record_line(line) ;
+
+                    i = i + 2;
+                    line = resultList.get(i) ;
+                    while (true)
+                    {
+                        if (i == length - 1)
+                            break;
+                        if (utils.count_space(line) == always_space)
+                        {
+                            i-- ;
+                            break ;
+                        }
+                        if (line.contains("Lvalue: "))
+                        {
+                            i = i - 1;
+                            if (resultList.get(i).contains("BlockingSubstitution"))
+                            {
+                                i = i + 3;
+                            }
+                            else if (resultList.get(i).contains("NonblockingSubstitution"))
+                            {
+                                System.err.println("Error [Nonblocking substitution is used for sequence logic.]" + resultList.get(i));
+                                i = i + 2;
+                            }
+                        }
+                        i++ ;
+                        line = resultList.get(i) ;
+                    }
+                }
+                else if (line.contains("Always:") && !resultList.get(i + 2).contains("Sens: all"))
+                {
+                    System.out.println("--------------------------------------------into the sequence always : " + line);
+                    inAlways = true ;
+                    ifSequence = true ;
+                    always_space = utils.count_space(line) ;
+                    sensitive_list_line = utils.record_line(line) ;
+
+                    i = i + 2;
+                    line = resultList.get(i) ;
+                    while (true)
+                    {
+                        if (i == length - 1)
+                            break;
+                        if (utils.count_space(line) == always_space)
+                        {
+                            i-- ;
+                            break ;
+                        }
+                        if (line.contains("Lvalue: "))
+                        {
+                            i = i - 1;
+                            if (resultList.get(i).contains("NonblockingSubstitution"))
+                            {
+                                i = i + 3;
+                            }
+                            else if (resultList.get(i).contains("BlockingSubstitution"))
+                            {
+                                System.err.println("Error [Blocking substitution is used for combination logic.]" + resultList.get(i));
+                                i = i + 2;
+                            }
+                        }
+                        i++ ;
+                        line = resultList.get(i) ;
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
 }
