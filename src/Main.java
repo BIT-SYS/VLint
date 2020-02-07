@@ -58,7 +58,7 @@ public class Main {
 
         //System.out.println(stringResult);
 
-        print_array(parseResult);
+        //print_array(parseResult);
 
         //parse.If_else_case(parseResult);
 
@@ -68,6 +68,8 @@ public class Main {
 
         //parse.SingalState(parseResult);
 
+        //parse.BlockorNonblockAssign(parseResult);
+        
         //ArrayList<String> dataflowResult = utils.command("python3 examples/example_dataflow_analyzer.py -t top testFiles/test.v" , "/home/zzy/Documents/JDJ/pyverilog");
 
         //print_array(dataflowResult);
