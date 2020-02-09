@@ -446,6 +446,60 @@ public class parse {
         }
     }
     
+    /*******************************************************************************************************************
+     * ⑩Cycle condition error, cycle will always run
+     * @param resultList
+     */
+    public static void CycleConditionError (ArrayList<String> resultList)
+    {
+        ArrayList<String> varList = new ArrayList<String>();
+        ArrayList<Integer> numList = new ArrayList<Integer>();
+        int length = resultList.size();
+        for (int i = 0; i < length; i++)
+        {
+            String line = resultList.get(i);
+            if (line.contains("IntConst") && resultList.get(i - 1).contains("IntConst"))
+            {
+                String var = resultList.get(i - 3).substring( resultList.get(i - 3).indexOf(":")+2 , resultList.get(i - 3).lastIndexOf(",") ) ;
+                int bits = utils.intconst_num(resultList.get(i)) - utils.intconst_num(resultList.get(i - 1));
+                bits = java.lang.Math.abs(bits) + 1;
+                varList.add(var);
+                numList.add(bits);
+            }
+            if (line.contains("LessThan"))
+            {
+                i = i + 1;
+                String tempVar = resultList.get(i).substring( resultList.get(i).indexOf(":")+2 , resultList.get(i).lastIndexOf("(")-1 ) ;
+                int indexVar = varList.indexOf(tempVar);
+                int tempNum = utils.intconst_num(resultList.get(i + 1));
+                int bitsNum;
+                if (indexVar == -1)
+                    bitsNum = 1;
+                else
+                    bitsNum = numList.get(indexVar);
+                if (Math.pow(2,bitsNum) - 1 < tempNum)
+                {
+                    System.err.println("Error [The Cycle Condition is always true] at line " + resultList.get(i-1));
+                }
+            }
+            if (line.contains("LessEq"))
+            {
+                i = i + 1;
+                String tempVar = resultList.get(i).substring( resultList.get(i).indexOf(":")+2 , resultList.get(i).lastIndexOf("(")-1 ) ;
+                int tempNum = utils.intconst_num(resultList.get(i + 1));
+                int indexVar = varList.indexOf(tempVar);
+                int bitsNum;
+                if (indexVar == -1)
+                    bitsNum = 1;
+                else
+                    bitsNum = numList.get(indexVar);
+                if (Math.pow(2,bitsNum) < tempNum)
+                {
+                    System.err.println("Error [The Cycle Condition is always true \"" + "\"] at line " + resultList.get(i-1));
+                }
+            }
+        }
+    }
     
     
 }
