@@ -1,8 +1,8 @@
 # VLint
-An source code defect detection tool for VHDL.
+A static code analyzer for Verilog.
 
 # News
-6th February,2020, version 0.1 open sourced.
+* 2020-02-01, version 0.1 open sourced.
 
 # Features
 ## Verilog source code parsing
@@ -17,8 +17,10 @@ Supported defects:
 4. The same module uses posedge or negedge.
 5. Blocking assignment and non blocking assignment.
 6. Cycle condition error.
+
 # Build and Install
 pyverilog
+
 # Team members
 Weixing Ji  
 Dejiang Jing  
