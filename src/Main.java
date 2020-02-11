@@ -72,6 +72,8 @@ public class Main {
         
         //parse.CycleConditionError(parseResult);
         
+        //parse.VarAssignMultipleInAlways(parseResult);
+
         //ArrayList<String> dataflowResult = utils.command("python3 examples/example_dataflow_analyzer.py -t top testFiles/test.v" , "/home/zzy/Documents/JDJ/pyverilog");
 
         //print_array(dataflowResult);
