@@ -22,6 +22,6 @@ Supported defects:
 pyverilog
 
 ## Team members
-Weixing Ji  : jwx@bit.edu.cn
+Weixing Ji  : jwx@bit.edu.cn  
 Dejiang Jing  
 Zhi Zhou  
