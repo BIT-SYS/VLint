@@ -501,5 +501,70 @@ public class parse {
         }
     }
     
+     /*******************************************************************************************************************
+     * ⑧ariable multiple assignments in different always
+     * @param resultList
+     */
+    public static void VarAssignMultipleInAlways (ArrayList<String> resultList)
+    {
+        ArrayList<String> AllLvalue = new ArrayList<String>();
+        ArrayList<String> AlwaysLvalue = new ArrayList<String>();
+        boolean inAlways = false;
+        int always_space = 0;
+        int length = resultList.size();
+
+        for (int i = 0; i < length; i++)
+        {
+            String line = resultList.get(i);
+            String lvalue;
+            if (inAlways)
+            {
+                if( utils.count_space(line)==always_space || i==length-1 )
+                {
+                    System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
+                    inAlways = false ;
+                    AllLvalue.addAll(AlwaysLvalue);
+                    AllLvalue = utils.duplicate_removal(AllLvalue);
+                    i--;
+                }
+            }
+            else
+            {
+                if (line.contains("Always:"))
+                {
+                    System.out.println("-------------------------------------------------------into the always : " + line);
+                    inAlways = true ;
+                    always_space = utils.count_space(line) ;
+
+                    i = i + 2;
+                    line = resultList.get(i) ;
+                    while (true)
+                    {
+                        if (i == length - 1)
+                            break;
+                        if (utils.count_space(line) == always_space)
+                        {
+                            i-- ;
+                            break ;
+                        }
+                        if (line.contains("Lvalue: "))
+                        {
+                            i = i + 1;
+                            lvalue = utils.record_variable(resultList.get(i));
+                            if (!AlwaysLvalue.contains(lvalue))
+                                AlwaysLvalue.add(lvalue);
+                            if (AllLvalue.contains(lvalue))
+                            {
+                                System.err.println("Error [Variable multiple assignments in different \"always\".]" + resultList.get(i));
+                            }
+                        }
+                        i++ ;
+                        line = resultList.get(i) ;
+                    }
+                }
+            }
+        }
+
+
     
 }
