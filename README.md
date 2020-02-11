@@ -20,7 +20,12 @@ Supported defects:
 7. Variable multiple assignments in different always
 
 ## Build and Install
-
+### pyverilog
+You need pyverilog to convert your source code to syntax , data flow analysis results as standard input.
+More information can be found at https://pypi.org/project/pyverilog/
+### IntelliJ
+The project can be run in IntelliJ.
+Input file should be named test.txt and stored in D:/test/test.txt.
 
 ## Team members
 Weixing Ji  : jwx@bit.edu.cn  
