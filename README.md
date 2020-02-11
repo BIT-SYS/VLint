@@ -17,9 +17,10 @@ Supported defects:
 4. The same module uses posedge or negedge.
 5. Blocking assignment and non blocking assignment.
 6. Cycle condition error.
+7. Variable multiple assignments in different always
 
 ## Build and Install
-pyverilog
+
 
 ## Team members
 Weixing Ji  : jwx@bit.edu.cn  
