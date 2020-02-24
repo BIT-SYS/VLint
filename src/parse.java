@@ -370,9 +370,9 @@ public class parse {
             }
             else
             {
-                if (line.contains("Always:") && resultList.get(i + 2).contains("Sens: all"))
+                if (line.contains("Always:") && (resultList.get(i + 2).contains("Sens: all") || resultList.get(i + 2).contains("Sens: level")))
                 {
-                    System.out.println("-----------------------------------------------into the combination always : " + line);
+                    System.out.println("---------------------------------------------into the combination always : " + line);
                     inAlways = true ;
                     ifSequence = false ;
                     always_space = utils.count_space(line) ;
@@ -398,7 +398,7 @@ public class parse {
                             }
                             else if (resultList.get(i).contains("NonblockingSubstitution"))
                             {
-                                System.err.println("Error [Nonblocking substitution is used for sequence logic.]" + resultList.get(i));
+                                System.err.println("Error [Nonblocking substitution is used for combination logic.]" + resultList.get(i));
                                 i = i + 2;
                             }
                         }
@@ -406,7 +406,7 @@ public class parse {
                         line = resultList.get(i) ;
                     }
                 }
-                else if (line.contains("Always:") && !resultList.get(i + 2).contains("Sens: all"))
+                else if (line.contains("Always:") && !(resultList.get(i + 2).contains("Sens: all") || resultList.get(i + 2).contains("Sens: level")))
                 {
                     System.out.println("--------------------------------------------into the sequence always : " + line);
                     inAlways = true ;
@@ -434,7 +434,7 @@ public class parse {
                             }
                             else if (resultList.get(i).contains("BlockingSubstitution"))
                             {
-                                System.err.println("Error [Blocking substitution is used for combination logic.]" + resultList.get(i));
+                                System.err.println("Error [Blocking substitution is used for sequence logic.]" + resultList.get(i));
                                 i = i + 2;
                             }
                         }
@@ -445,9 +445,10 @@ public class parse {
             }
         }
     }
-    
+
+
     /*******************************************************************************************************************
-     * ⑩Cycle condition error, cycle will always run
+     * ⑩Variable multiple assignments in different always.
      * @param resultList
      */
     public static void CycleConditionError (ArrayList<String> resultList)
@@ -458,7 +459,7 @@ public class parse {
         for (int i = 0; i < length; i++)
         {
             String line = resultList.get(i);
-            if (line.contains("IntConst") && resultList.get(i - 1).contains("IntConst"))
+            if (line.contains("IntConst") && resultList.get(i - 1).contains("IntConst") && resultList.get(i - 4).contains("Decl:"))
             {
                 String var = resultList.get(i - 3).substring( resultList.get(i - 3).indexOf(":")+2 , resultList.get(i - 3).lastIndexOf(",") ) ;
                 int bits = utils.intconst_num(resultList.get(i)) - utils.intconst_num(resultList.get(i - 1));
@@ -466,7 +467,7 @@ public class parse {
                 varList.add(var);
                 numList.add(bits);
             }
-            if (line.contains("LessThan"))
+            if (line.contains("LessThan") && resultList.get(i - 1).contains("WhileStatement"))
             {
                 i = i + 1;
                 String tempVar = resultList.get(i).substring( resultList.get(i).indexOf(":")+2 , resultList.get(i).lastIndexOf("(")-1 ) ;
@@ -482,7 +483,7 @@ public class parse {
                     System.err.println("Error [The Cycle Condition is always true] at line " + resultList.get(i-1));
                 }
             }
-            if (line.contains("LessEq"))
+            if (line.contains("LessEq") && resultList.get(i - 1).contains("WhileStatement"))
             {
                 i = i + 1;
                 String tempVar = resultList.get(i).substring( resultList.get(i).indexOf(":")+2 , resultList.get(i).lastIndexOf("(")-1 ) ;
@@ -500,8 +501,9 @@ public class parse {
             }
         }
     }
-    
-     /*******************************************************************************************************************
+
+
+    /*******************************************************************************************************************
      * ⑧ariable multiple assignments in different always
      * @param resultList
      */
@@ -549,7 +551,10 @@ public class parse {
                         }
                         if (line.contains("Lvalue: "))
                         {
-                            i = i + 1;
+                            while (!resultList.get(i).contains("Identifier"))
+                            {
+                                i = i + 1;
+                            }
                             lvalue = utils.record_variable(resultList.get(i));
                             if (!AlwaysLvalue.contains(lvalue))
                                 AlwaysLvalue.add(lvalue);
@@ -564,7 +569,225 @@ public class parse {
                 }
             }
         }
+    }
 
 
-    
+
+    /*******************************************************************************************************************
+     * ⑨Same judgment conditions in case or if statement
+     * @param resultList
+     */
+    public static void SameJudgmentConditions (ArrayList<String> resultList)
+    {
+        boolean inJudgement = false;
+        int judgement_space = 0;
+        int length = resultList.size();
+
+        for (int i = 0; i < length; i++)
+        {
+            String line = resultList.get(i);
+            if (inJudgement)
+            {
+                if (utils.count_space(line) == judgement_space || i == length - 1)
+                {
+                    System.out.println("------------------------------------------------------out of the branch : " + line + "\n\n");
+                    inJudgement = false;
+                    //i--;
+                }
+            }
+            else
+            {
+                if (line.contains("IfStatement:"))
+                {
+                    ArrayList<String> IfJudgeConditions = new ArrayList<String>();
+                    String judge_symbol;
+                    String lvalue;
+                    String rvalue;
+                    System.out.println("----------------------------------------------------into the if branch : " + line);
+                    inJudgement = true ;
+                    judgement_space = utils.count_space(line);
+
+                    line = resultList.get(i);
+                    while (true)
+                    {
+                        //String line_in_if = resultList.get(i);
+                        if (i == length - 1)
+                            break;
+                        if (utils.count_space(line) < judgement_space)
+                        {
+                            i--;
+                            break;
+                        }
+                        if (line.contains("IfStatement:"))
+                        {
+                            if (!(resultList.get(i+2).contains("Identifier:") && resultList.get(i+2).contains("IntConst:")))
+                                break;
+                            judge_symbol = utils.record_symbol(resultList.get(i+1));
+                            lvalue = utils.record_variable(resultList.get(i+2));
+                            rvalue = utils.record_variable(resultList.get(i+3));
+                            IfJudgeConditions.add(judge_symbol+lvalue+rvalue);
+                            if (utils.if_duplicate(IfJudgeConditions))
+                            {
+                                System.err.println("Error [Same Judgment Conditions in \"if\".]" + resultList.get(i));
+                                break;
+                            }
+                        }
+                        i++;
+                        line = resultList.get(i);
+                    }
+                }
+                if (line.contains("CaseStatement:"))
+                {
+                    ArrayList<String> CaseConditions = new ArrayList<String>();
+                    String case_value;
+
+                    System.out.println("--------------------------------------------------into the case branch : " + line);
+                    inJudgement = true ;
+                    judgement_space = utils.count_space(line);
+
+                    line = resultList.get(i);
+                    while (true)
+                    {
+                        //String line = resultList.get(i);
+                        if (i == length - 1)
+                            break;
+                        if (utils.count_space(line) < judgement_space)
+                        {
+                            i--;
+                            break;
+                        }
+                        if (line.contains("Case:"))
+                        {
+                            case_value = utils.record_variable(resultList.get(i+1));
+                            CaseConditions.add(case_value);
+                            if (utils.if_duplicate(CaseConditions))
+                            {
+                                System.err.println("Error [Same Judgment Conditions in \"case\".]" + resultList.get(i));
+                                break;
+                            }
+                        }
+                        i++;
+                        line = resultList.get(i);
+                    }
+                }
+            }
+        }
+    }
+
+
+    /*******************************************************************************************************************
+     * ⑥Wrong use of integer base in case statement
+     * @param resultList
+     */
+    public static void BasedIntegerInCase(ArrayList<String> resultList)
+    {
+        int length = resultList.size();
+        String integer;
+        for (int i = 0; i < length; i++)
+        {
+            String line = resultList.get(i);
+            if (line.contains("Case:"))
+            {
+                i = i + 1;
+                if (line.contains("Identifier") || line.contains("Block"))
+                line = resultList.get(i);
+                integer = utils.record_variable(line);
+                if (integer.length() > 2 && integer.charAt(1) != '\'')
+                    System.err.println("Error [Wrong Use of Integer Base in \"case\".]" + resultList.get(i));
+            }
+        }
+    }
+
+
+    /*******************************************************************************************************************
+     * ③Variable bit width usage error
+     * @param resultList
+     */
+    public static void  VariableBitWidthUsageError(ArrayList<String> resultList)
+    {
+        int length = resultList.size();
+        ArrayList<String> VariableList = new ArrayList<String>();
+        ArrayList<Integer> IntegerList = new ArrayList<Integer>();
+        ArrayList<String> HighFlag = new ArrayList<String>();
+        String define_variable;
+//        String integer1;
+//        String integer2;
+        int integer1;
+        int integer2;
+        for (int i = 0; i < length; i++)
+        {
+            String line = resultList.get(i);
+            if (line.contains("Width:") && resultList.get(i+1).contains("IntConst"))
+            {
+                i = i - 1;
+                if (!resultList.get(i).contains(","))
+                {
+                    i = i + 1;
+                    continue;
+                }
+                define_variable = utils.record_define_variable(resultList.get(i));
+                VariableList.add(define_variable);
+                i = i + 2;
+                integer1 = utils.intconst_num(resultList.get(i));
+                integer2 = utils.intconst_num(resultList.get(i+1));
+                if (Integer.valueOf(integer1) > Integer.valueOf(integer2))
+                {
+                    IntegerList.add(Integer.valueOf(integer1)-Integer.valueOf(integer2));
+                    HighFlag.add("Y");
+                }
+                else
+                {
+                    IntegerList.add(Integer.valueOf(integer2)-Integer.valueOf(integer1));
+                    HighFlag.add("N");
+                }
+            }
+
+            if (i+4 < length && (line.contains("Rvalue:") || line.contains("Lvalue:")))
+            {
+                String temp_string;
+                if (resultList.get(i+4).contains("IntConst:"))
+                {
+                    while(true)
+                    {
+                        if (resultList.get(i).contains("Identifier"))
+                            break;
+                        i = i + 1;
+                    }
+                    if (!resultList.get(i+1).contains("IntConst") || !resultList.get(i+2).contains("IntConst"))
+                    {
+                        continue;
+                    }
+                    temp_string = utils.record_variable(resultList.get(i));
+                    int index = VariableList.indexOf(temp_string);
+                    integer1 = utils.intconst_num(resultList.get(i+1));
+                    integer2 = utils.intconst_num(resultList.get(i+2));
+                    if (index > 0 && Math.abs(integer1 - integer2) > IntegerList.get(index))
+                    {
+                        System.err.println("Error [Variable bit width usage error.]" + resultList.get(i));
+                        continue;
+                    }
+
+                    if ( integer1 > integer2)
+                    {
+                        if (index > 0 && (integer1 - integer2 > Integer.valueOf(IntegerList.get(index)) || HighFlag.get(index) != "Y"))
+                            System.err.println("Error [Variable bit width usage error.]" + resultList.get(i));
+                    }
+                    else
+                    {
+                        if (index > 0 && (integer2 - integer1 < Integer.valueOf(IntegerList.get(index)) || HighFlag.get(index) != "N"))
+                            System.err.println("Error [Variable bit width usage error.]" + resultList.get(i));
+                    }
+                }
+                else
+                {
+
+                    continue;
+                }
+            }
+        }
+    }
+
+
+
+
 }
