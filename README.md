@@ -20,12 +20,13 @@ Supported defects:
 7. Variable multiple assignments in different always
 
 ## Build and Install
+### Linux
+The tool currently only supports the Linux operating system as a running environment.
 ### pyverilog
-You need pyverilog to convert your source code to syntax , data flow analysis results as standard input.
-More information can be found at https://pypi.org/project/pyverilog/
-### IntelliJ
-The project can be run in IntelliJ.
-Input file should be named test.txt and stored in D:/test/test.txt.
+First You need pyverilog, a Python-based Hardware Design Processing Toolkit for Verilog HDL.
+Installation steps can be found at https://pypi.org/project/pyverilog/
+### Run
+Run the jar file in the out directory using the Java command in the terminal, with the project path to be tested as an argument.
 
 ## Team members
 Weixing Ji  : jwx@bit.edu.cn  
