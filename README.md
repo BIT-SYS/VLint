@@ -20,7 +20,7 @@ Supported defects:
 7. Variable multiple assignments in different always.
 8. Same judgment conditions in case or if statement.
 9. Wrong use of integer base in case statement.
-10.Variable bit width usage error.
+10. Variable bit width usage error.
 
 ## Build and Install
 ### Linux
