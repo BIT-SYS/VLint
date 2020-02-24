@@ -48,13 +48,14 @@ public class Main {
 
         ArrayList<String> parseResult = new ArrayList<String>(Arrays.asList(stringResult.split(";")));
 
+
+
         //ArrayList<String> parseResult = new ArrayList<String>();
         //Collections.addAll(parseResult, stringResult.split(";"));
 
-        int length = parseResult.size();
+        //int length = parseResult.size();
 
-
-        System.out.println(length);
+        //System.out.println(length);
 
         //System.out.println(stringResult);
 
@@ -62,17 +63,23 @@ public class Main {
 
         //parse.If_else_case(parseResult);
 
-        //parse.SensitiveList(parseResult);
+        //parse.SensitiveList(parseResult);                 //
 
         //parse.Incomplete_Case(parseResult);
 
         //parse.SingalState(parseResult);
 
-        //parse.BlockorNonblockAssign(parseResult);
-        
+        //parse.BlockorNonblockAssign(parseResult);           //
+
         //parse.CycleConditionError(parseResult);
-        
-        //parse.VarAssignMultipleInAlways(parseResult);
+
+        //parse.VarAssignMultipleInAlways(parseResult);         //
+
+        //parse.SameJudgmentConditions(parseResult);              //
+
+        //parse.BasedIntegerInCase(parseResult);
+
+        //parse.VariableBitWidthUsageError(parseResult);    //
 
         //ArrayList<String> dataflowResult = utils.command("python3 examples/example_dataflow_analyzer.py -t top testFiles/test.v" , "/home/zzy/Documents/JDJ/pyverilog");
 
