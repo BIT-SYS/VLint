@@ -17,7 +17,10 @@ Supported defects:
 4. The same module uses posedge or negedge.
 5. Blocking assignment and non blocking assignment.
 6. Cycle condition error.
-7. Variable multiple assignments in different always
+7. Variable multiple assignments in different always.
+8. Same judgment conditions in case or if statement.
+9. Wrong use of integer base in case statement.
+10.Variable bit width usage error.
 
 ## Build and Install
 ### Linux
