@@ -29,8 +29,8 @@ The tool currently only supports the Linux operating system as a running environ
 First You need pyverilog, a Python-based Hardware Design Processing Toolkit for Verilog HDL.
 Installation steps can be found at https://pypi.org/project/pyverilog/
 ### Run
-Run the jar file in the out directory using the Java command in the terminal, with the project path to be tested as an argument.
-Command: java -jar VLint.jar verilog_dir.
+Run the jar file in the out directory using the Java command in the terminal, with the project path to be tested as an argument.  
+    java -jar VLint.jar verilog_dir.
 
 ## Team members
 Weixing Ji  : jwx@bit.edu.cn  
