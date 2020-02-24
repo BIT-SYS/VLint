@@ -30,7 +30,7 @@ First You need pyverilog, a Python-based Hardware Design Processing Toolkit for 
 Installation steps can be found at https://pypi.org/project/pyverilog/
 ### Run
 Run the jar file in the out directory using the Java command in the terminal, with the project path to be tested as an argument.
-command: java -jar VLint.jar verilog_dir.
+Command: java -jar VLint.jar verilog_dir.
 
 ## Team members
 Weixing Ji  : jwx@bit.edu.cn  
