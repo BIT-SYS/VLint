@@ -1,5 +1,5 @@
 ## VLint
-A static code analyzer for Verilog.
+There are constructs in Verilog used in ways syntactically correct, but yield unexpected or undesirable results. VLint is a Static analysis tool for Verilog, detecting design defects in Verilog source code. 
 
 ## News
 * 2020-02-01, version 0.1 open sourced.
@@ -23,17 +23,18 @@ Supported defects:
 10. Variable bit width usage error.
 
 ## Build and Install
-### Linux
-The tool currently only supports the Linux operating system as a running environment.
-### pyverilog
-First You need pyverilog, a Python-based Hardware Design Processing Toolkit for Verilog HDL.
-Installation steps can be found at https://pypi.org/project/pyverilog/
-### Run
-Run the jar file in the out directory using the Java command in the terminal, with the project path to be tested as an argument.  
-    
-    java -jar VLint.jar verilog_dir.
+### Requirements
+* Linux like system
+* Python 3.7 or higher version
+* pyverilog: a Python-based Hardware Design Processing Toolkit for Verilog HDL. Installation instructions can be found at https://pypi.org/project/pyverilog/
 
-## Team members
+### Running
+Run the jar file in the out directory with the project source path:  
+    
+    java -jar VLint.jar verilog_src_dir
+
+## People
+
 Weixing Ji  : jwx@bit.edu.cn  
 Dejiang Jing  
 Zhi Zhou  
