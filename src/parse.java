@@ -29,7 +29,7 @@ public class parse {
     public static ArrayList<String> IForELSE_process(ArrayList<String> resultList, String IForELSE) throws IOException {
         //此时的line指向if或者else部分的入口
         String line = resultList.get(i1);
-        System.out.println("-----------into " + IForELSE + " : " + line);
+        //System.out.println("-----------into " + IForELSE + " : " + line);
         int IForELSE_space = utils.count_space(line);
         ArrayList<String> Lvalue = new ArrayList<String>();
         if (line.contains("IfStatement")) {
@@ -39,7 +39,7 @@ public class parse {
         while (true) {
             line = resultList.get(++i1);
             if (i1 == resultList.size() - 1 || utils.count_space(line) <= IForELSE_space) {
-                System.out.println("-----------out " + IForELSE + " : " + line);
+                //System.out.println("-----------out " + IForELSE + " : " + line);
                 if (Lvalue != null) {
                     Lvalue = utils.duplicate_removal(Lvalue);
                     Collections.sort(Lvalue);
@@ -53,10 +53,10 @@ public class parse {
                 if (line.contains("Lvalue")) {
                     line = resultList.get(++i1);
                     Lvalue.add(utils.record_variable(line));
-                    System.out.println("-->new lvalue in  : " + utils.record_variable(line));
+                    //System.out.println("-->new lvalue in  : " + utils.record_variable(line));
                     i1 = i1 + 2;
                     if (i1 == resultList.size() - 1) {
-                        System.out.println("-----------out " + IForELSE + " : " + line);
+                        //System.out.println("-----------out " + IForELSE + " : " + line);
                         if (Lvalue != null) {
                             Lvalue = utils.duplicate_removal(Lvalue);
                             Collections.sort(Lvalue);
@@ -82,7 +82,7 @@ public class parse {
         String line = resultList.get(i1);
         int num_space = utils.count_space(line);
         int if_structure_line = utils.record_line(line);
-        System.out.println("--------------------------------------------------------------into if structure : " + line);
+        //System.out.println("--------------------------------------------------------------into if structure : " + line);
         try {
             line = resultList.get(++i1) ;
             while (true) {
@@ -93,21 +93,21 @@ public class parse {
                 }
             }
             Lvalue_if = IForELSE_process(resultList, "if");
-            System.out.print("Lvalue if :  ");
-            utils.print_array(Lvalue_if);
+            //System.out.print("Lvalue if :  ");
+            //utils.print_array(Lvalue_if);
             if (i1 == resultList.size() - 1 || utils.count_space(resultList.get(i1)) < num_space + 2) {
-                System.out.println("---------------------------------------------------------------out if structure suddenly : " + resultList.get(i1) + "\n\n");
+                //System.out.println("---------------------------------------------------------------out if structure suddenly : " + resultList.get(i1) + "\n\n");
                 System.err.println("Error [without else in a if structure] at line " + if_structure_line);
                 return Lvalue_if;
             }
             Lvalue_else = IForELSE_process(resultList, "else");
-            System.out.print("Lvalue else :  ");
-            utils.print_array(Lvalue_else);
-            if (!Lvalue_if.equals(Lvalue_else)) {
-                System.out.println("different");
+            //System.out.print("Lvalue else :  ");
+            //utils.print_array(Lvalue_else);
+            if (!Lvalue_if.equals(Lvalue_else) && !Lvalue_else.isEmpty()) {
+                //System.out.println("different");
                 System.err.println("Error [Lvalues are not the same between if and else] at line : " + if_structure_line);
-            } else System.out.println("same");
-            System.out.println("---------------------------------------------------------------out if structure : " + resultList.get(i1) + "\n\n");
+            } //else System.out.println("same");
+            //System.out.println("---------------------------------------------------------------out if structure : " + resultList.get(i1) + "\n\n");
             Lvalue_if.addAll(Lvalue_else);
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,14 +138,14 @@ public class parse {
                     case_space = utils.count_space(line) ;
                     inCase = true ;
                     hasDefault = false ;
-                    System.out.println("--------------------------------------------into case structure at : " + line );
+                    //System.out.println("--------------------------------------------into case structure at : " + line );
                 }
             }
             else
             {
                 if( i==length-1 || utils.count_space(resultList.get(i+1)) <= case_space )
                 {
-                    System.out.println("---------------------------------------------last line of case : " + line + "\n\n");
+                    //System.out.println("---------------------------------------------last line of case : " + line + "\n\n");
                     if( !hasDefault )
                     {
                         System.err.println("Error [case intructure without default] at line : " + case_line);
@@ -156,10 +156,10 @@ public class parse {
                 {
                     if( line.contains("Case:  ") && i+2<length )
                     {
-                        System.out.println("-----case at : "+line);
+                        //System.out.println("-----case at : "+line);
                         if( utils.count_space(resultList.get(i+2))>case_space+4 )
                         {
-                            System.out.println("find default! ");
+                            //System.out.println("find default! ");
                             hasDefault = true ;
                         }
                     }
@@ -177,18 +177,28 @@ public class parse {
     {
         boolean inAlways = false;
         ArrayList<String> sensitiveList = new ArrayList<String>();
+        ArrayList<String> parameterList = new ArrayList<String>();
         int always_space = 0;
         int sensitive_list_line = 0;
         int length = resultList.size();
 
+        for (int j = 0; j < length; j++)
+        {
+            String line = resultList.get(j);
+            if (line.contains("Parameter"))
+            {
+                parameterList.add(utils.record_define_variable(line));
+            }
+        }
+
+        utils.duplicate_removal(parameterList);
         for (int i = 0; i < length; i++)
         {
             String line = resultList.get(i);
             if (inAlways)
             {
-                if( utils.count_space(line)==always_space || i==length-1 ) //出always
+                if( utils.count_space(line)==always_space || i==length-1 )
                 {
-                    System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
                     inAlways = false ;
                 }
                 else
@@ -205,19 +215,14 @@ public class parse {
                             {
                                 break ;
                             }
-                            if( line.contains("Identifier:") )
+                            if( line.contains("Identifier:") && !parameterList.contains(utils.record_variable(line)))
                             {
                                 String Rvalue = utils.record_variable(line) ;
-                                System.out.print("Rvalue : "+Rvalue);
                                 if( !sensitiveList.contains(Rvalue) )
                                 {
-                                    System.out.println("  x");
                                     System.err.println("Error [sensitive list without variable \"" + Rvalue + "\"] at line "+sensitive_list_line );
                                 }
-                                else
-                                {
-                                    System.out.println("  o");
-                                }
+
                             }
                             if( tmp_i==length-1 )   break;
                             tmp_i++ ;
@@ -231,7 +236,6 @@ public class parse {
             {
                 if (line.contains("Always:"))
                 {
-                    System.out.println("------------------------------------------------------into the always : "+line);
                     inAlways = true ;
                     always_space = utils.count_space(line) ;
                     sensitiveList = new ArrayList<String>() ;
@@ -245,18 +249,15 @@ public class parse {
                             break;
                         if (utils.count_space(line) <= always_space + 2)
                         {
-                            System.out.print("sensitiveList : ");
-                            utils.print_array(sensitiveList);
                             i-- ;
                             break ;
                         }
-                        if( line.contains("Sens: all") || line.contains("Sens: posedge") || line.contains("Sens: negedge") )                  //always引导的敏感列表:上升沿/下降沿/ALL  直接跳过
+                        if( line.contains("Sens: all") || line.contains("Sens: posedge") || line.contains("Sens: negedge") )
                         {
                             inAlways = false ;
-                            System.out.println("------------------------------------------------------jump always " + utils.record_variable(line) + " : "+line + "\n\n");
                             break ;
                         }
-                        if( line.contains(" Identifier:"))
+                        if( line.contains(" Identifier:") && !parameterList.contains(utils.record_variable(line)))
                         {
                             sensitiveList.add(utils.record_variable(line)) ;
                         }
@@ -288,7 +289,7 @@ public class parse {
             {
                 if( utils.count_space(line)==always_space || i==length-1 ) //出always
                 {
-                    System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
+                    //System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
                     inAlways = false ;
                     i--;
                 }
@@ -297,7 +298,7 @@ public class parse {
             {
                 if (line.contains("Always:"))
                 {
-                    System.out.println("------------------------------------------------------into the always : " + line);
+                    //System.out.println("------------------------------------------------------into the always : " + line);
                     inAlways = true ;
                     always_space = utils.count_space(line) ;
                     posedgeList = new ArrayList<String>() ;
@@ -312,10 +313,10 @@ public class parse {
                             break;
                         if (utils.count_space(line) <= always_space + 2)
                         {
-                            System.out.print("posedgeList : ");
-                            utils.print_array(posedgeList);
-                            System.out.print("negedgeList : ");
-                            utils.print_array(negedgeList);
+                            //System.out.print("posedgeList : ");
+                            //utils.print_array(posedgeList);
+                            //System.out.print("negedgeList : ");
+                            //utils.print_array(negedgeList);
                             ArrayList<String> result = new ArrayList<String>();
                             result = utils.find_same(posedgeList, negedgeList);
                             if (!result.isEmpty())
@@ -353,6 +354,7 @@ public class parse {
         boolean inAlways = false;
         boolean ifSequence = false;
         int always_space = 0;
+        int for_space = 0;
         int length = resultList.size();
         int sensitive_list_line = 0;
 
@@ -363,7 +365,7 @@ public class parse {
             {
                 if( utils.count_space(line)==always_space || i==length-1 ) //出always
                 {
-                    System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
+                    //System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
                     inAlways = false ;
                     i--;
                 }
@@ -372,9 +374,8 @@ public class parse {
             {
                 if (line.contains("Always:") && (resultList.get(i + 2).contains("Sens: all") || resultList.get(i + 2).contains("Sens: level")))
                 {
-                    System.out.println("---------------------------------------------into the combination always : " + line);
+                    //System.out.println("---------------------------------------------into the combination always : " + line);
                     inAlways = true ;
-                    ifSequence = false ;
                     always_space = utils.count_space(line) ;
                     sensitive_list_line = utils.record_line(line) ;
 
@@ -382,6 +383,10 @@ public class parse {
                     line = resultList.get(i) ;
                     while (true)
                     {
+                        if (line.contains("ForStatement"))
+                        {
+                            i += 12;
+                        }
                         if (i == length - 1)
                             break;
                         if (utils.count_space(line) == always_space)
@@ -398,7 +403,8 @@ public class parse {
                             }
                             else if (resultList.get(i).contains("NonblockingSubstitution"))
                             {
-                                System.err.println("Error [Nonblocking substitution is used for combination logic.]" + resultList.get(i));
+                                sensitive_list_line = utils.record_line(resultList.get(i));
+                                System.err.println("Error [Nonblocking substitution is used for combination logic.] at line " + sensitive_list_line);
                                 i = i + 2;
                             }
                         }
@@ -408,7 +414,7 @@ public class parse {
                 }
                 else if (line.contains("Always:") && !(resultList.get(i + 2).contains("Sens: all") || resultList.get(i + 2).contains("Sens: level")))
                 {
-                    System.out.println("--------------------------------------------into the sequence always : " + line);
+                    //System.out.println("--------------------------------------------into the sequence always : " + line);
                     inAlways = true ;
                     ifSequence = true ;
                     always_space = utils.count_space(line) ;
@@ -418,6 +424,10 @@ public class parse {
                     line = resultList.get(i) ;
                     while (true)
                     {
+                        if (line.contains("ForStatement"))
+                        {
+                            i += 12;
+                        }
                         if (i == length - 1)
                             break;
                         if (utils.count_space(line) == always_space)
@@ -434,7 +444,8 @@ public class parse {
                             }
                             else if (resultList.get(i).contains("BlockingSubstitution"))
                             {
-                                System.err.println("Error [Blocking substitution is used for sequence logic.]" + resultList.get(i));
+                                sensitive_list_line = utils.record_line(resultList.get(i));
+                                System.err.println("Error [Blocking substitution is used for sequence logic.] at line " + sensitive_list_line);
                                 i = i + 2;
                             }
                         }
@@ -456,6 +467,7 @@ public class parse {
         ArrayList<String> varList = new ArrayList<String>();
         ArrayList<Integer> numList = new ArrayList<Integer>();
         int length = resultList.size();
+        int sensitive_list_line;
         for (int i = 0; i < length; i++)
         {
             String line = resultList.get(i);
@@ -496,7 +508,8 @@ public class parse {
                     bitsNum = numList.get(indexVar);
                 if (Math.pow(2,bitsNum) < tempNum)
                 {
-                    System.err.println("Error [The Cycle Condition is always true \"" + "\"] at line " + resultList.get(i-1));
+                    sensitive_list_line = utils.record_line(resultList.get(i-1));
+                    System.err.println("Error [The Cycle Condition is always true \"" + "\"] at line " + sensitive_list_line);
                 }
             }
         }
@@ -511,19 +524,23 @@ public class parse {
     {
         ArrayList<String> AllLvalue = new ArrayList<String>();
         ArrayList<String> AlwaysLvalue = new ArrayList<String>();
+        ArrayList<String> AlwaysDecl = new ArrayList<String>();
         boolean inAlways = false;
         int always_space = 0;
         int length = resultList.size();
+        int sensitive_list_line = 0;
 
         for (int i = 0; i < length; i++)
         {
             String line = resultList.get(i);
             String lvalue;
+
             if (inAlways)
             {
-                if( utils.count_space(line)==always_space || i==length-1 )
+                i--;
+                if( utils.count_space(line)<=always_space || i==length-1 )
                 {
-                    System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
+                    //System.out.println("------------------------------------------------------out of the always : "+line+"\n\n");
                     inAlways = false ;
                     AllLvalue.addAll(AlwaysLvalue);
                     AllLvalue = utils.duplicate_removal(AllLvalue);
@@ -532,9 +549,15 @@ public class parse {
             }
             else
             {
+                if (line.contains("ModuleDef:"))
+                {
+                    AllLvalue.clear();
+                    AlwaysLvalue.clear();
+                    AlwaysDecl.clear();
+                }
                 if (line.contains("Always:"))
                 {
-                    System.out.println("-------------------------------------------------------into the always : " + line);
+                    //System.out.println("-------------------------------------------------------into the always : " + line);
                     inAlways = true ;
                     always_space = utils.count_space(line) ;
 
@@ -549,18 +572,40 @@ public class parse {
                             i-- ;
                             break ;
                         }
+                        if (line.contains("Decl:"))
+                        {
+                            while(true)
+                            {
+                                if (resultList.get(i+1).contains(","))
+                                {
+                                    AlwaysDecl.add(utils.record_define_variable(resultList.get(i+1)));
+                                    i++;
+                                }
+                                else break;
+                            }
+                        }
                         if (line.contains("Lvalue: "))
                         {
                             while (!resultList.get(i).contains("Identifier"))
                             {
                                 i = i + 1;
                             }
-                            lvalue = utils.record_variable(resultList.get(i));
+                            if (!resultList.get(i+1).contains("IntConst:") && !AlwaysDecl.contains(utils.record_variable(resultList.get(i))))
+                            {
+                                lvalue = utils.record_variable(resultList.get(i));
+                            }
+                            else
+                            {
+                                i++ ;
+                                line = resultList.get(i) ;
+                                continue;
+                            }
                             if (!AlwaysLvalue.contains(lvalue))
                                 AlwaysLvalue.add(lvalue);
                             if (AllLvalue.contains(lvalue))
                             {
-                                System.err.println("Error [Variable multiple assignments in different \"always\".]" + resultList.get(i));
+                                sensitive_list_line = utils.record_line(resultList.get(i));
+                                System.err.println("Error [Variable " + lvalue + " multiple assignments in different \"always\".] at line " + sensitive_list_line);
                             }
                         }
                         i++ ;
@@ -582,6 +627,7 @@ public class parse {
         boolean inJudgement = false;
         int judgement_space = 0;
         int length = resultList.size();
+        int sensitive_list_line = 0;
 
         for (int i = 0; i < length; i++)
         {
@@ -590,7 +636,7 @@ public class parse {
             {
                 if (utils.count_space(line) == judgement_space || i == length - 1)
                 {
-                    System.out.println("------------------------------------------------------out of the branch : " + line + "\n\n");
+                    //System.out.println("------------------------------------------------------out of the branch : " + line + "\n\n");
                     inJudgement = false;
                     //i--;
                 }
@@ -600,14 +646,15 @@ public class parse {
                 if (line.contains("IfStatement:"))
                 {
                     ArrayList<String> IfJudgeConditions = new ArrayList<String>();
-                    String judge_symbol;
-                    String lvalue;
                     String rvalue;
-                    System.out.println("----------------------------------------------------into the if branch : " + line);
+                    String lvalue;
+                    String judge_symbol;
+                    //System.out.println("----------------------------------------------------into the if branch : " + line);
                     inJudgement = true ;
-                    judgement_space = utils.count_space(line);
 
                     line = resultList.get(i);
+                    judgement_space = utils.count_space(line);
+
                     while (true)
                     {
                         //String line_in_if = resultList.get(i);
@@ -628,7 +675,8 @@ public class parse {
                             IfJudgeConditions.add(judge_symbol+lvalue+rvalue);
                             if (utils.if_duplicate(IfJudgeConditions))
                             {
-                                System.err.println("Error [Same Judgment Conditions in \"if\".]" + resultList.get(i));
+                                sensitive_list_line = utils.record_line(resultList.get(i));
+                                System.err.println("Error [Same Judgment Conditions in \"if\".] at line " + sensitive_list_line);
                                 break;
                             }
                         }
@@ -641,7 +689,7 @@ public class parse {
                     ArrayList<String> CaseConditions = new ArrayList<String>();
                     String case_value;
 
-                    System.out.println("--------------------------------------------------into the case branch : " + line);
+                    //System.out.println("--------------------------------------------------into the case branch : " + line);
                     inJudgement = true ;
                     judgement_space = utils.count_space(line);
 
@@ -662,7 +710,8 @@ public class parse {
                             CaseConditions.add(case_value);
                             if (utils.if_duplicate(CaseConditions))
                             {
-                                System.err.println("Error [Same Judgment Conditions in \"case\".]" + resultList.get(i));
+                                sensitive_list_line = utils.record_line(resultList.get(i));
+                                System.err.println("Error [Same Judgment Conditions in \"case\".] at line " + sensitive_list_line);
                                 break;
                             }
                         }
@@ -714,9 +763,17 @@ public class parse {
 //        String integer2;
         int integer1;
         int integer2;
+        boolean eqflag = false;
+        boolean signflag = false;
         for (int i = 0; i < length; i++)
         {
             String line = resultList.get(i);
+            if (line.contains("ModuleDef:"))
+            {
+                VariableList.clear();
+                IntegerList.clear();
+                HighFlag.clear();
+            }
             if (line.contains("Width:") && resultList.get(i+1).contains("IntConst"))
             {
                 i = i - 1;
@@ -745,6 +802,14 @@ public class parse {
             if (i+4 < length && (line.contains("Rvalue:") || line.contains("Lvalue:")))
             {
                 String temp_string;
+                if (resultList.get(i+1).contains("Eq:"))
+                {
+                    eqflag = true;
+                }
+                if (resultList.get(i+1).contains("Plus:") || resultList.get(i+1).contains("Minus:"))
+                {
+                    signflag = true;
+                }
                 if (resultList.get(i+4).contains("IntConst:"))
                 {
                     while(true)
@@ -759,9 +824,32 @@ public class parse {
                     }
                     temp_string = utils.record_variable(resultList.get(i));
                     int index = VariableList.indexOf(temp_string);
+                    int numflag = 0;
                     integer1 = utils.intconst_num(resultList.get(i+1));
                     integer2 = utils.intconst_num(resultList.get(i+2));
-                    if (index > 0 && Math.abs(integer1 - integer2) > IntegerList.get(index))
+                    if (signflag || (!resultList.get(i+3).contains("IntConst") && !eqflag))
+                        numflag = Math.abs(integer1 - integer2);
+                    if (resultList.get(i+3).contains("IntConst") && !eqflag && !signflag)
+                    {
+                        System.out.println(resultList.get(i));
+                        int k = utils.record_variable(resultList.get(i+3)).indexOf("'", 0);
+                        System.out.println(k);
+                        String temp = utils.record_variable(resultList.get(i+3)).substring(0, k);
+                        System.out.println(temp);
+                               // String.valueOf(utils.record_variable(resultList.get(i+3)).charAt(0));
+                        numflag = Math.abs(integer1 - integer2) + Integer.parseInt(temp);
+                        System.out.println(numflag);
+                    }
+                    if (resultList.get(i+3).contains("IntConst") && eqflag )
+                    {
+                        String temp = String.valueOf(utils.record_variable(resultList.get(i+3)).charAt(0));
+                        if (Math.abs(integer1 - integer2)+1 != Integer.parseInt(temp))
+                        {
+                            System.err.println("Error [Variable bit width usage error.]" + resultList.get(i));
+                        }
+                    }
+
+                    if (index > 0 && numflag > IntegerList.get(index))
                     {
                         System.err.println("Error [Variable bit width usage error.]" + resultList.get(i));
                         continue;
@@ -769,12 +857,12 @@ public class parse {
 
                     if ( integer1 > integer2)
                     {
-                        if (index > 0 && (integer1 - integer2 > Integer.valueOf(IntegerList.get(index)) || HighFlag.get(index) != "Y"))
+                        if (index > 0 && (numflag > Integer.valueOf(IntegerList.get(index)) || HighFlag.get(index) != "Y"))
                             System.err.println("Error [Variable bit width usage error.]" + resultList.get(i));
                     }
                     else
                     {
-                        if (index > 0 && (integer2 - integer1 < Integer.valueOf(IntegerList.get(index)) || HighFlag.get(index) != "N"))
+                        if (index > 0 && (numflag < Integer.valueOf(IntegerList.get(index)) || HighFlag.get(index) != "N"))
                             System.err.println("Error [Variable bit width usage error.]" + resultList.get(i));
                     }
                 }
@@ -783,6 +871,8 @@ public class parse {
 
                     continue;
                 }
+                eqflag = false;
+                signflag = false;
             }
         }
     }
