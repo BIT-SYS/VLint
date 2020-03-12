@@ -21,11 +21,11 @@ public class Main {
     public static String txt2String(File file){
         StringBuilder result = new StringBuilder();
         try{
-            BufferedReader br = new BufferedReader(new FileReader(file));//构造一个BufferedReader类来读取文件
+            BufferedReader br = new BufferedReader(new FileReader(file));
             String s = null;
             int i = 0;
             int index = 0;
-            while((s = br.readLine())!=null){//使用readLine方法，一次读一行
+            while((s = br.readLine())!=null){
                 if (i == 0) result.append(s + ";");
                 else result.append('\n' + s + ";");
                 ++i;
@@ -63,19 +63,19 @@ public class Main {
 
         //parse.If_else_case(parseResult);
 
-        //parse.SensitiveList(parseResult);                 //
+        //parse.SensitiveList(parseResult);
 
-        //parse.Incomplete_Case(parseResult);
+        parse.Incomplete_Case(parseResult);
 
         //parse.SingalState(parseResult);
 
-        //parse.BlockorNonblockAssign(parseResult);           //
+        //parse.BlockorNonblockAssign(parseResult);
 
         //parse.CycleConditionError(parseResult);
 
-        //parse.VarAssignMultipleInAlways(parseResult);         //
+        //parse.VarAssignMultipleInAlways(parseResult);           //A small number of false positives
 
-        //parse.SameJudgmentConditions(parseResult);              //
+        //parse.SameJudgmentConditions(parseResult);
 
         //parse.BasedIntegerInCase(parseResult);
 
