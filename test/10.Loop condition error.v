@@ -8,7 +8,7 @@ module top
    output [7:0] led
   );
   reg [31:0] count;
-  reg [2:0] state;
+  reg [1:0] state;
   reg [3:0] Count_aux;
   reg j;
   integer i;
@@ -48,7 +48,7 @@ module top
   begin
   state = 0;
   Count_aux = 4'b0000;
-  for (state = 0; state < 8; state = state + 1)  	//error
+  for (state = 0; state < 8; state = state + 1) //Error
 	begin
         if(!number[state])
             Count_aux= Count_aux + 1;
