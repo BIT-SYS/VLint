@@ -1,15 +1,78 @@
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+class treeNode{
+    String type = "";
+    int line = 0;
+    String value = "";
+    String attribute = "";
+    ArrayList<treeNode> childList = new ArrayList<>();
+}
 
 public class Main {
+
+    static ArrayList<String> parseResult = new ArrayList<>();
+    static String moduleName = null ;
+    /**
+     * return the number of prefix Spaces
+     * @param str
+     * @return
+     */
+    public static int prefixSpaces(String str){
+        int spaceNum = 0;
+        for( int i=0; i<str.length(); i++ )
+        {
+            if( str.charAt(i)!=' ' )
+            {
+                break;
+            }
+            spaceNum++;
+        }
+        return spaceNum;
+    }
+
+    /**
+     * construct Tree node
+     * @param i:the line number of the results arrayList
+     * @return
+     */
+    public static treeNode constructTreeNode(int i){
+        treeNode Node = new treeNode();
+        String str = parseResult.get(i);
+        int spaces = prefixSpaces(str);
+        Node.type = str.trim().substring(0,str.trim().indexOf(":"));
+        Node.line = Integer.valueOf(str.split("\\s")[str.split("\\s").length-1].substring(0,str.split("\\s")[str.split("\\s").length-1].indexOf(')')));
+        if( str.contains(",") ){
+            Node.value = str.substring( str.indexOf(':')+2 , str.indexOf(','));
+            Node.attribute = str.substring( str.indexOf(',')+2 , str.indexOf('(')-1);
+        }
+        else{
+            Node.value = str.substring( str.indexOf(':')+2 , str.indexOf('(')-1);
+            Node.attribute = null;
+        }
+        ArrayList<treeNode> childs = new ArrayList<>();
+        for( i=i+1 ; i<parseResult.size() ; i++ )
+        {
+            String strTmp = parseResult.get(i) ;
+            int spacesTmp = prefixSpaces(strTmp);
+            if( spacesTmp <= spaces )
+            {
+                break;
+            }
+            else if( spacesTmp == spaces+2 )
+            {
+                treeNode childNode = constructTreeNode(i) ;
+                childs.add( childNode ) ;
+            }
+        }
+        Node.childList = childs;
+        return Node;
+    }
+
+
     private static int line_num;
     public static void print_array( ArrayList<String> list )
     {
@@ -18,54 +81,27 @@ public class Main {
         System.out.println(" ");
     }
 
-    public static String txt2String(File file){
-        StringBuilder result = new StringBuilder();
-        try{
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String s = null;
-            int i = 0;
-            int index = 0;
-            while((s = br.readLine())!=null){
-                if (i == 0) result.append(s + ";");
-                else result.append('\n' + s + ";");
-                ++i;
+    public static void main( String args[] ) throws IOException {
+
+        System.out.println("starts");
+        try {
+            String path = args[0];
+            File file = new File(path);
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+            String strLine;
+            while(null != (strLine = bufferedReader.readLine())){
+                parseResult.add(strLine);
             }
-            line_num = i;
-            br.close();
         }catch(Exception e){
             e.printStackTrace();
         }
-        return result.toString();
-    }
+        treeNode rootNode = constructTreeNode(0);
 
-
-    public static void main( String args[] ) throws IOException {
-        System.out.println("starts");
-
-        File file = new File("D:/test/test.txt");
-
-        String stringResult = txt2String(file);
-
-        ArrayList<String> parseResult = new ArrayList<String>(Arrays.asList(stringResult.split(";")));
-
-
-
-        //ArrayList<String> parseResult = new ArrayList<String>();
-        //Collections.addAll(parseResult, stringResult.split(";"));
-
-        //int length = parseResult.size();
-
-        //System.out.println(length);
-
-        //System.out.println(stringResult);
-
-        //print_array(parseResult);
-
-        //parse.If_else_case(parseResult);
+        //parse.IfElseCase(parseResult);
 
         //parse.SensitiveList(parseResult);
 
-        parse.Incomplete_Case(parseResult);
+        //parse.IncompleteCase(parseResult, rootNode);
 
         //parse.SingalState(parseResult);
 
@@ -73,17 +109,31 @@ public class Main {
 
         //parse.CycleConditionError(parseResult);
 
-        //parse.VarAssignMultipleInAlways(parseResult);           //A small number of false positives
+        //parse.VarAssignMultipleInAlways(parseResult, rootNode);
 
-        //parse.SameJudgmentConditions(parseResult);
+        //parse.SameJudgmentConditions(parseResult, rootNode);
 
-        //parse.BasedIntegerInCase(parseResult);
+        parse.BasedIntegerInCase(parseResult);
 
-        //parse.VariableBitWidthUsageError(parseResult);    //
+        //parse.VariableBitWidthUsageError(parseResult);
+
+        dataflow.VariableAssignmentBeforeUndefined(rootNode);
 
         //ArrayList<String> dataflowResult = utils.command("python3 examples/example_dataflow_analyzer.py -t top testFiles/test.v" , "/home/zzy/Documents/JDJ/pyverilog");
 
         //print_array(dataflowResult);
+
+        //int length = parseResult.size();
+
+        //System.out.println(length);
+
+        //System.out.println(stringResult);
+
+        //parse.StoreVarAndWidth(parseResult);
+
+        //print_array(parseResult);
+
+        //parse.StoreVarAndWidth(parseResult);
 
         System.out.println("finished");
     }
